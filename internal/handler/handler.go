@@ -20,10 +20,10 @@ func (h *Handler) saveURL(c *gin.Context) {
 		SendError(c, http.StatusBadRequest, "Отсутствует Content-Type", funcName)
 		return
 	}
-	if ct[0] != "text/plain" {
-		SendError(c, http.StatusBadRequest, "Content-Type должен быть text/plain", funcName)
-		return
-	}
+	// if ct[0] != "text/plain" {
+	// 	SendError(c, http.StatusBadRequest, "Content-Type должен быть text/plain", funcName)
+	// 	return
+	// }
 
 	data, err := c.GetRawData()
 	if err != nil {
@@ -46,7 +46,6 @@ func (h *Handler) saveURL(c *gin.Context) {
 	c.String(http.StatusCreated, response)
 }
 
-// TODO
 func (h *Handler) redirect(c *gin.Context) {
 	const funcName = "handler.redirect"
 	paramId := c.Param("id")
