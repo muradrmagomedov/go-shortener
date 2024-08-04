@@ -6,12 +6,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// TODO вынести в конфиг
 const addr = "http://localhost:8080/"
-const id = "EwHXdJfB"
-const location = "https://practicum.yandex.ru/"
 
 // shortURL(c *gin.Context) принимает url-строку в формате text/plain и возвращает адрес, с которого будет осуществляться редирект
-func shortURL(c *gin.Context) {
+func (h *Handler) saveURL(c *gin.Context) {
 	const funcName = "handler.getURL"
 
 	ct := c.Request.Header["Content-Type"]
@@ -38,18 +37,25 @@ func shortURL(c *gin.Context) {
 		SendError(c, http.StatusBadRequest, "Пустая ссылка", funcName)
 		return
 	}
-	response := addr + id
+	alias, err := h.Service.SaveURL(url)
+	if err != nil {
+		SendError(c, http.StatusInternalServerError, err.Error(), funcName)
+		return
+	}
+	response := addr + alias
 	c.String(http.StatusCreated, response)
 }
 
-func redirect(c *gin.Context) {
+// TODO
+func (h *Handler) redirect(c *gin.Context) {
 	const funcName = "handler.redirect"
 	paramId := c.Param("id")
-	if paramId != id {
+	url, err := h.Service.GetURL(paramId)
+	if err != nil {
 		SendError(c, http.StatusBadRequest, "Не удалось найти URL", funcName)
 		return
 	}
 	c.Writer.Header().Add("Content-Type", "text/plain")
-	c.Writer.Header().Add("Location", location)
+	c.Writer.Header().Add("Location", url)
 	c.String(http.StatusTemporaryRedirect, "")
 }
